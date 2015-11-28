@@ -8,6 +8,13 @@ Low level socket programming in C.
 
 ### IPv4 :
 
+Create a socket with `socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)`. <br>
+The kernel will fill the Ethernet and IP header automatically.
+
+| Code | Descriptions  |
+| --- | --- |
+| [icmp__inet_raw_ipicmp.c](network-programming/icmp__inet_raw_ipicmp.c) | Send ICMPv4 echo request with some payload. |
+
 --
 
 ### IPv6 :
