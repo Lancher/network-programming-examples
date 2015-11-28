@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>             // memset()
-#include <unistd.h>             // getpid(), sleep();
+#include <unistd.h>             // getpid(), sleep()
 
 #include <sys/types.h>          // uint8_t, uint16_t, uint32_t
 #include <sys/socket.h>         // socket(), AF_NET
