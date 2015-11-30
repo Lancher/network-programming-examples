@@ -1,15 +1,16 @@
 ## IPv4 and IPv6 raw sockets programming
 
-### Introduction :
+#### Introduction :
 
 Low level socket programming in C.
 
 --
 
-### IPv4 :
+#### IPv4 Sockets:
 
-Create a socket with `socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)`. <br>
-The kernel will fill the Ethernet and IP header automatically.
+##### Create a socket with `socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)`.
+
+- The kernel will fill the Ethernet and IP header automatically.
 
 | Code | Descriptions  |
 | --- | --- |
@@ -17,11 +18,22 @@ The kernel will fill the Ethernet and IP header automatically.
 
 --
 
-### IPv6 :
+#### IPv6 Sockets:
+
+- IPv6 sockets api [RFC3493](http://www.ietf.org/rfc/rfc3493.txt) and [RFC3542](http://www.ietf.org/rfc/rfc3542.txt).
+
+##### Create a socket with `socket(AF_INET6, SOCK_RAW, IPPROTO_ICMP6)`.
+
+- The kernel will fill the Ethernet, IP header automatically and ICMPv6 header chuckseum.
+
+| Code | Descriptions  |
+| --- | --- |
+| [icmp__inet_raw_ipicmpv6.c](network-programming/icmp__inet_raw_ipicmpv6.c) | Send ICMPv6 echo request with some payload. |
+
 
 --
 
-### Miscellaneous :
+#### Miscellaneous :
 
 | Code | Descriptions  |
 | --- | --- |

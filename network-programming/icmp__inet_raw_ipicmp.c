@@ -14,7 +14,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Periodically IPv4 ping request useing IMCP raw socket.
+// Periodically IPv4 ping request using IMCP raw socket.
 // The kernel will fill Ethernet and IPv4 headers.
 
 #include <stdio.h>
@@ -41,14 +41,14 @@ struct packet
 };
 
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
 
   int i, sd, val = 255;
   uint16_t seq = 0;
   struct packet pkt;
-  struct sockaddr_in addr = { AF_INET, 0, 0};
-  char hostname [INET_ADDRSTRLEN];
+  struct sockaddr_in addr = { AF_INET, 0, 0 };
+  char hostname[INET_ADDRSTRLEN];
 
   // Usage.
   if (argc < 2) {
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 
   // Set IPv4 header time-to-live option.
   if (setsockopt(sd, SOL_IP, IP_TTL, &val, sizeof(val)) != 0) {
-    perror("setsockopt() ");
+    perror ("setsockopt() ");
     exit (EXIT_FAILURE);
   }
 
@@ -75,8 +75,9 @@ main(int argc, char *argv[])
     exit (EXIT_FAILURE);
   }
 
+  // Ping the host every 1s.
   for (;;) {
-    memset(&pkt, 0, sizeof(pkt));
+    memset (&pkt, 0, sizeof(pkt));
 
     // Set the ICMP type ICMP_ECHO.
     pkt.hdr.type = ICMP_ECHO;
@@ -101,7 +102,7 @@ main(int argc, char *argv[])
     // Sleep 1s.
     sleep (1);
 
-    // Use "tcpdump -nnvvvXSs 1540 icmp" to check pinging progress.
+    // Use "tcpdump -nnvvvXS -s0 icmp" to check pinging progress.
   }
 
 }
@@ -114,8 +115,7 @@ checksum(void *buf, int len)
   uint32_t sum = 0;
 
   for (; len > 1; len -= 2) {
-    sum += *word;
-    word++;
+    sum += *word++;
   }
   if (len == 1)
     sum += *(uint8_t *)word;
