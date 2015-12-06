@@ -14,7 +14,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Periodically IPv4 ping request using IMCP raw socket.
+// Periodically IPv4 ping request using IMCP raw socket by using ancillary data.
 // The kernel will fill Ethernet and IPv4 headers.
 
 #include <stdio.h>
@@ -23,15 +23,15 @@
 #include <unistd.h>             // getpid(), sleep()
 
 #include <sys/types.h>          // uint8_t, uint16_t, uint32_t
-#include <sys/socket.h>         // socket(), AF_NET
-#include <netinet/in.h>         // struct sockaddr_in, IPPROTO_ICMP, INET_ADDRSTRLEN
+#include <sys/socket.h>         // socket(), AF_NET, struct msghdr, struct cmsghdr
+#include <netinet/in.h>         // struct sockaddr_in, IPPROTO_ICMP, INET_ADDRSTRLEN, IPPROTO_IP, IP_TTL
 #include <arpa/inet.h>          // inet_pton(), inet_ntop(), htons()
 #include <netinet/ip_icmp.h>    // struct icmphdr, ICMP_ECHO
 
 #include <errno.h>              // errno, perror()
 
 // Function declarations
-uint16_t checksum(void *, int);
+uint16_t checksum (void *, int);
 
 // ICMP header + ICMP payload
 struct packet
@@ -49,6 +49,11 @@ main (int argc, char *argv[])
   struct packet pkt;
   struct sockaddr_in addr = { AF_INET, 0, 0 };
   char hostname[INET_ADDRSTRLEN];
+  // Ancillary data.
+  struct msghdr msghdr;
+  struct cmsghdr *cmsghdr;
+  struct iovec iov[1];
+  char cmsghdr_buf[CMSG_SPACE (sizeof (val))];
 
   // Usage.
   if (argc < 2) {
@@ -63,12 +68,6 @@ main (int argc, char *argv[])
     exit (EXIT_FAILURE);
   }
 
-  // Set IPv4 header time-to-live option.
-  if (setsockopt(sd, SOL_IP, IP_TTL, &val, sizeof(val)) != 0) {
-    perror ("setsockopt() ");
-    exit (EXIT_FAILURE);
-  }
-
   // Convert the hostname to network bytes.
   if (inet_pton (AF_INET, argv[1], &(addr.sin_addr)) < 0) {
     perror ("inet_pton() ");
@@ -77,7 +76,8 @@ main (int argc, char *argv[])
 
   // Ping the host every 1s.
   for (;;) {
-    memset (&pkt, 0, sizeof(pkt));
+    // 1. Construct ICMP header and payload.
+    memset (&pkt, 0, sizeof (pkt));
 
     // Set the ICMP type ICMP_ECHO.
     pkt.hdr.type = ICMP_ECHO;
@@ -87,15 +87,39 @@ main (int argc, char *argv[])
     pkt.hdr.un.echo.sequence = htons (seq++);
 
     // Fill the payload with random data.
-    for (i = 0; i < sizeof(pkt.payload); i++) {
+    for (i = 0; i < sizeof (pkt.payload); i++) {
       pkt.payload[i] = '0' + i;
     }
 
     // Calculate the checksum;
-    pkt.hdr.checksum = checksum(&pkt, sizeof(pkt));
+    pkt.hdr.checksum = checksum (&pkt, sizeof(pkt));
 
-    if (sendto (sd, &pkt, sizeof(pkt), 0, (struct sockaddr*)&addr, sizeof(addr)) <= 0) {
-        perror ("sendto() ");
+    // 2. Assign msghdr's field "msg_name" to destination address.
+    memset (&msghdr, 0, sizeof(msghdr));
+    msghdr.msg_name = &addr;
+    msghdr.msg_namelen = sizeof (addr);
+
+    // 3. Assign the packet to the io vector.
+    iov[0].iov_base = &pkt;
+    iov[0].iov_len = sizeof (struct packet);
+    msghdr.msg_iov = iov;
+    msghdr.msg_iovlen = 1;
+
+    // 4. Set the TTL in cmsghdr.
+    memset (&cmsghdr_buf, 0, sizeof (cmsghdr_buf));
+    msghdr.msg_control = cmsghdr_buf;
+    msghdr.msg_controllen = sizeof (cmsghdr_buf);
+
+    // Set the time-to-live value 255.
+    cmsghdr = CMSG_FIRSTHDR (&msghdr);
+    cmsghdr->cmsg_level = IPPROTO_IP;
+    cmsghdr->cmsg_type = IP_TTL;
+    cmsghdr->cmsg_len = CMSG_LEN (sizeof (val));
+    *(int *)CMSG_DATA (cmsghdr) = val;
+
+    // 5. Send the message.
+    if (sendmsg (sd, &msghdr, 0) <= 0) {
+        perror ("sendmsg() ");
         exit (EXIT_FAILURE);
     }
 
