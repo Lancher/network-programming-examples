@@ -14,7 +14,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Periodically IPv4 ping request using IMCP raw socket.
+// Periodically IPv4 ping request using IMCP socket.
 // The kernel will fill Ethernet and IPv4 headers.
 
 #include <stdio.h>

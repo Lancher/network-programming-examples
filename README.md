@@ -53,7 +53,7 @@ Low level socket programming in C.
 
 | Code | Descriptions  |
 | --- | --- |
-| [getaddrinfo.c](network-programming/getaddrinfo.c) | Use `getaddrinfo()` to identify an Internet hostname. |
-| [bind_dev.c](network-programming/bind_dev.c) | Bind a socket to a network interface(eth0, eth1 ...).  |
-| [iovec.c](network-programming/iovec.c) | How iovec work in ancillary data.  |
+| [getaddrinfo.c](src/getaddrinfo.c) | Use `getaddrinfo()` to identify an Internet hostname. |
+| [bind_dev.c](src/bind_dev.c) | Bind a socket to a network interface(eth0, eth1 ...).  |
+| [iovec.c](src/iovec.c) | How iovec work in ancillary data.  |
 --
