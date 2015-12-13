@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>            // memset()
+#include <string.h>            // memset()
 #include <unistd.h>             // getpid(), sleep()
 
 #include <sys/socket.h>         // socket(), AF_NET6

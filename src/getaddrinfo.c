@@ -14,7 +14,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// List all the ip addresses using "getaddrinfo()".
+// List all the ip addresses of a hostname using "getaddrinfo()".
 
 #include <stdio.h>
 #include <stdlib.h>
