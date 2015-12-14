@@ -18,9 +18,9 @@ Low level socket programming in C.
 
 | Code | Descriptions  |
 | --- | --- |
-| [icmpv4__icmp_socket.c](src/icmpv4__icmp_socket.c) | Create a ICMP socket to send Echo (with TTL)). |
-| [icmpv4__icmp_socket_ancillary.c](src/icmpv4__icmp_socket_ancillary.c) | Create a ICMP socket to send Echo with ancillary data (with TTL)). |
-| [icmpv4__raw_socket.c](src/icmpv4__raw_socket.c) | Create a Raw socket(IP_HDRINCL) to send Echo (with TTL). |
+| [icmpv4_echo__icmp_socket.c](src/icmpv4_echo__icmp_socket.c) | Send echo request (with TTL)). |
+| [icmpv4_echo__icmp_socket_ancillary.c](src/icmpv4_echo__icmp_socket_ancillary.c) | Send echo request using ancillary data (with TTL)). |
+| [icmpv4_echo__raw_socket.c](src/icmpv4_echo__raw_socket.c) | Create a Raw socket(IP_HDRINCL) to send echo request (with TTL). |
 
 --
 
@@ -36,14 +36,14 @@ Low level socket programming in C.
 
 - All the fields in IPv6 header and all the extension headers can be set by `ancillary data` or `setsockopt()`.
 
-- There is no need for a socket option similar to the IPv4 IP_HDRINCL socket option.
+- There is No option similar to the `IPv4 IP_HDRINCL` socket option.
 
 - Using ancillary data to specify the option content for a single datagram.
 
 | Code | Descriptions  |
 | --- | --- |
-| [icmpv6__icmpv6_socket.c](src/icmpv6__icmpv6_socket.c) | Create a ICMPv6 socket to send Echo (with hoplimit). |
-| [icmpv6__icmpv6_socket_ancillary.c](src/icmpv6__icmpv6_socket_ancillary.c) | Create a ICMPv6 socket to send Echo with ancillary data (with hoplimit). |
+| [icmpv6_echo__icmpv6_socket.c](src/icmpv6_echo__icmpv6_socket.c) | Send echo request (with hoplimit). |
+| [icmpv6_echo__icmpv6_socket_ancillary.c](src/icmpv6_echo__icmpv6_socket_ancillary.c) | Send echo request using ancillary data (with hoplimit). |
 
 
 
