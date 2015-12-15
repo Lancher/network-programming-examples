@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>            // memset()
+#include <string.h>           // memset()
 
 #include <netinet/in.h>       // struct sockaddr, struct sockaddr_in, struct sockaddr_in6, INET_ADDRSTRLEN, INET6_ADDRSTRLEN
 #include <arpa/inet.h>        // inet_ntop()

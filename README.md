@@ -45,6 +45,14 @@ Low level socket programming in C.
 | [icmpv6_echo__icmpv6_socket.c](src/icmpv6_echo__icmpv6_socket.c) | Send echo request (with hoplimit). |
 | [icmpv6_echo__icmpv6_socket_ancillary.c](src/icmpv6_echo__icmpv6_socket_ancillary.c) | Send echo request using ancillary data (with hoplimit). |
 
+- IPv6 Neighbor Discovery (using multicast address, IPv6 do NOT have broadcast address).
+
+- Neighbor Solicitation/Advertisement and Router Solicitation/Advertisement
+
+| Code | Descriptions  |
+| --- | --- |
+| [icmpv6_ns__icmpv6_socket_ancillary.c](src/icmpv6_ns__icmpv6_socket_ancillary.c) | Send neighbor solicitation request (with hoplimit). |
+
 
 
 --

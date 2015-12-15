@@ -24,7 +24,7 @@
 #include <netinet/in.h>       // struct sockaddr, struct sockaddr_in, IPPROTO_RAW, IPPROTO_TCP, INET_ADDRSTRLEN
 #include <net/if.h>           // struct ifreq
 #include <arpa/inet.h>        // htons(), inet_pton(), inet_ntop()
-#include <sys/ioctl.h>
+#include <sys/ioctl.h>        // ioctl()
 
 #include <errno.h>            // errno, perror()
 

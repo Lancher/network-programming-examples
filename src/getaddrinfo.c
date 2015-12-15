@@ -54,4 +54,7 @@ main (int argc, char *argv[])
       printf ("%s\n", addr6);
     }
   }
+
+  // Free the addrinfo list.
+  freeaddrinfo (info);
 }

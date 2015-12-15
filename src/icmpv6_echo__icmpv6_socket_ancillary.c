@@ -22,7 +22,7 @@
 #include <strings.h>            // memset()
 #include <unistd.h>             // getpid(), sleep()
 
-#include <sys/socket.h>         // socket(), AF_NET6
+#include <sys/socket.h>         // socket(), AF_NET6, struct msghdr, struct cmsghdr
 #include <netinet/in.h>         // struct sockaddr_in6, IPPROTO_ICMPV6, INET6_ADDRSTRLEN
 #include <arpa/inet.h>          // inet_pton(), inet_ntop(), htons()
 #include <netinet/icmp6.h>      // struct icmp6_hdr, ICMP6_ECHO_REQUEST
