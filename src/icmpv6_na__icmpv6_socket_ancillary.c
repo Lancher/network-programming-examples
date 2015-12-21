@@ -14,7 +14,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Send ICMPv6 neighbor solicitation.
+// Send ICMPv6 neighbor advertisement.
 // Create a ICMPv6 socket and change hoplimit using ancillary dtata.
 
 #include <stdio.h>
@@ -25,9 +25,10 @@
 #include <sys/socket.h>         // socket(), AF_NET6, struct msghdr, struct cmsghdr
 #include <netinet/in.h>         // struct sockaddr_in6, IPPROTO_ICMPV6, INET6_ADDRSTRLEN
 #include <arpa/inet.h>          // inet_pton(), inet_ntop(), htons()
-#include <netinet/icmp6.h>      // struct icmp6_hdr, struct nd_neighbor_solicit
+#include <netinet/icmp6.h>      // struct icmp6_hdr, struct nd_neighbor_advert
 #include <net/if.h>             // struct ifreq
 #include <sys/ioctl.h>          // ioctl()
+#include <ifaddrs.h>            // struct ifaddrs
 
 #include <errno.h>              // errno, perror()
 
@@ -36,21 +37,25 @@ main (int argc, char *argv[])
 {
   int i, sd, hoplimit = 255;
   uint16_t seq = 0;
-  // IPv6 address.
-  struct sockaddr_in6 addr = { AF_INET6, 0, 0, 0, 0 };
-  struct sockaddr_in6 mul_addr = { AF_INET6, 0, 0, 0, 0 };
+  // IPv6 address
+  struct sockaddr_in6 src = { AF_INET6, 0, 0, 0, 0 };
+  struct sockaddr_in6 dst = { AF_INET6, 0, 0, 0, 0 };
   char hostname[INET6_ADDRSTRLEN];
-  // ICMPv6 ns header.
-  struct nd_neighbor_solicit ns;
-  // ICMPv6 ns header option.
+  char addr6[INET6_ADDRSTRLEN];
+  // ICMPv6 na header
+  struct nd_neighbor_advert na;
+  // ICMPv6 na header option
   uint8_t option[8];
-  // Ancillary data.
+  // Ancillary data
   struct msghdr msghdr;
   struct cmsghdr *cmsghdr;
   struct iovec iov[2];
   char cmsghdr_buf[CMSG_SPACE (sizeof (hoplimit))];
   // Interface
   struct ifreq ifr;
+  // interface address
+  struct ifaddrs * ifaddrs = NULL;
+  struct ifaddrs * ifaddr = NULL;
 
   // Usage.
   if (argc < 3) {
@@ -63,6 +68,27 @@ main (int argc, char *argv[])
     perror ("socket() ");
     exit (EXIT_FAILURE);
   }
+
+  // Use getifaddrs() to find interface address, ioctl() with SIOCGIFADDR is not work for IPv6.
+
+  // Get interface address list.
+  getifaddrs (&ifaddrs);
+
+  // Print all interface and ip address.
+  for (ifaddr = ifaddrs; ifaddr != NULL; ifaddr = ifaddr->ifa_next) {
+      // IPv6
+      if (ifaddr->ifa_addr->sa_family == AF_INET6) {
+          struct sockaddr_in6 *addr = (struct sockaddr_in6 *)ifaddr->ifa_addr;
+          inet_ntop(AF_INET6, &addr->sin6_addr, addr6, INET6_ADDRSTRLEN);
+          if (strcmp (argv[1], ifaddr->ifa_name) == 0) {
+            src.sin6_addr = addr->sin6_addr;
+            printf("The interface %s address is %s\n", ifaddr->ifa_name, addr6);
+          }
+      }
+  }
+  // Free the list.
+  if (ifaddrs != NULL)
+    freeifaddrs(ifaddrs);
 
   // Use ioctl() to find hardware address.
   memset (&ifr, 0, sizeof(struct ifreq));
@@ -100,20 +126,10 @@ main (int argc, char *argv[])
   }
 
   // Convert the hostname to network bytes.
-  if (inet_pton (AF_INET6, argv[2], &(addr.sin6_addr)) < 0) {
+  if (inet_pton (AF_INET6, argv[2], &(dst.sin6_addr)) < 0) {
     perror ("inet_pton() ");
     exit (EXIT_FAILURE);
   }
-
-  // Copy the addr to ns_addr and covert unicast address to ns multicast address.
-  memcpy (&mul_addr, &addr, sizeof (struct sockaddr_in6));
-  mul_addr.sin6_addr.s6_addr[0]= 255;
-  mul_addr.sin6_addr.s6_addr[1]=2;
-  for (i=2; i<11; i++) {
-    mul_addr.sin6_addr.s6_addr[i] = 0;
-  }
-  mul_addr.sin6_addr.s6_addr[11]=1;
-  mul_addr.sin6_addr.s6_addr[12]=255;
 
   // Bind the interface using setsockopt()
   if (setsockopt (sd, SOL_SOCKET, SO_BINDTODEVICE, (void*)&ifr, sizeof(struct ifreq)) < 0) {
@@ -124,30 +140,30 @@ main (int argc, char *argv[])
   // Send ICMPv6 neighbor solicitation.
 
   // 1. Construct ICMPv6 header and payload.
-  memset (&ns, 0, sizeof(ns));
+  memset (&na, 0, sizeof(na));
 
   // Set header type.
-  ns.nd_ns_hdr.icmp6_type = ND_NEIGHBOR_SOLICIT;  // 135 (RFC 4861)
+  na.nd_na_hdr.icmp6_type = ND_NEIGHBOR_ADVERT;  // 136 (RFC 4861)
 
   // Code is 0 for ns.
-  ns.nd_ns_hdr.icmp6_code = 0;
+  na.nd_na_hdr.icmp6_code = 0;
 
   // When you create a ICMPv6 raw socket, the kernel will calculate and
   // insert the ICMPv6 checksum automatically.
-  ns.nd_ns_hdr.icmp6_cksum = htons(0);
+  na.nd_na_hdr.icmp6_cksum = htons (0);
 
-  // The reserved must be 0.
-  ns.nd_ns_reserved = htonl(0);
-  ns.nd_ns_target = addr.sin6_addr;
+  // Set R/S/O flags as: R(router)=0, S(Solicited)=1, O(override)=1.
+  na.nd_na_flags_reserved = htonl ((1 << 30) + (1 << 29));
+  na.nd_na_target = src.sin6_addr;          // Target address (as type in6_addr)
 
-  // 2. Assign msghdr's field "msg_name" to multicast destination address.
-  memset (&msghdr, 0, sizeof(msghdr));
-  msghdr.msg_name = &mul_addr;
-  msghdr.msg_namelen = sizeof (mul_addr);
+  // 2. Assign msghdr's field "msg_name" to destination address.
+  memset (&msghdr, 0, sizeof (msghdr));
+  msghdr.msg_name = &dst;
+  msghdr.msg_namelen = sizeof (dst);
 
   // 3. Assign the packet to the io vector.
-  iov[0].iov_base = &ns;
-  iov[0].iov_len = sizeof (struct nd_neighbor_solicit);
+  iov[0].iov_base = &na;
+  iov[0].iov_len = sizeof (struct nd_neighbor_advert);
 
   iov[1].iov_base = &option;
   iov[1].iov_len = sizeof (option);
