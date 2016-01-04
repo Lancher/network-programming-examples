@@ -137,7 +137,7 @@ main (int argc, char *argv[])
     return (EXIT_FAILURE);
   }
 
-  // Send ICMPv6 neighbor solicitation.
+  // Send ICMPv6 neighbor advertisement.
 
   // 1. Construct ICMPv6 header and payload.
   memset (&na, 0, sizeof(na));
@@ -192,6 +192,6 @@ main (int argc, char *argv[])
   // Close sd.
   close (sd);
 
-  // Use "tcpdump -nnvvvXS -i eth1 -s0 icmp6" to check neighbor solicitation progress.
+  // Use "tcpdump -nnvvvXS -i eth1 -s0 icmp6" to check neighbor advertisement progress.
 
 }

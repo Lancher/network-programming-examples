@@ -168,6 +168,6 @@ main (int argc, char *argv[])
   // Close sd.
   close (sd);
 
-  // Use "tcpdump -nnvvvXS -i eth1 -s0 icmp6" to check neighbor solicitation progress.
+  // Use "tcpdump -nnvvvXS -i eth1 -s0 icmp6" to check router solicitation progress.
 
 }
