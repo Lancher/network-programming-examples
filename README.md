@@ -56,6 +56,7 @@ Low level socket programming in C.
 | [icmpv6_ns__icmpv6_socket_ancillary.c](src/icmpv6_ns__icmpv6_socket_ancillary.c) | Send neighbor solicitation request (with hoplimit). |
 | [icmpv6_na__icmpv6_socket_ancillary.c](src/icmpv6_na__icmpv6_socket_ancillary.c) | Send neighbor advertisement request (with hoplimit). |
 | [icmpv6_rs__icmpv6_socket_ancillary.c](src/icmpv6_rs__icmpv6_socket_ancillary.c) | Send router solicitation request (with hoplimit). |
+| [icmpv6_ra__icmpv6_socket_ancillary.c](src/icmpv6_ra__icmpv6_socket_ancillary.c) | Send router advertisement request (with hoplimit). |
 
 --
 
