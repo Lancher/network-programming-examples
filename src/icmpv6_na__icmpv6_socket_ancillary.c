@@ -74,7 +74,7 @@ main (int argc, char *argv[])
   // Get interface address list.
   getifaddrs (&ifaddrs);
 
-  // Print all interface and ip address.
+  // Get all interface and ip address.
   for (ifaddr = ifaddrs; ifaddr != NULL; ifaddr = ifaddr->ifa_next) {
       // IPv6
       if (ifaddr->ifa_addr->sa_family == AF_INET6) {

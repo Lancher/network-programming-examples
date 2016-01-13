@@ -41,15 +41,14 @@ main (int argc, char **argv)
   // Print all interface and ip address.
   for (ifaddr = ifaddrs; ifaddr != NULL; ifaddr = ifaddr->ifa_next) {
       // IPv4
-      if (ifaddr->ifa_addr->sa_family == AF_INET) {
-          struct sockaddr_in *addr = (struct sockaddr_in *)ifaddr->ifa_addr;
+      if ((ifaddr->ifa_addr != NULL) && (ifaddr->ifa_addr->sa_family == AF_INET)) {
+          struct sockaddr_in *addr = (struct sockaddr_in *) ifaddr->ifa_addr;
           inet_ntop(AF_INET, &addr->sin_addr, addr4, INET_ADDRSTRLEN);
           printf("%s: %s\n", ifaddr->ifa_name, addr4);
       }
-
       // IPv6
-      if (ifaddr->ifa_addr->sa_family == AF_INET6) {
-          struct sockaddr_in6 *addr = (struct sockaddr_in6 *)ifaddr->ifa_addr;
+      if ((ifaddr->ifa_addr != NULL) && (ifaddr->ifa_addr->sa_family == AF_INET6)) {
+          struct sockaddr_in6 *addr = (struct sockaddr_in6 *) ifaddr->ifa_addr;
           inet_ntop(AF_INET6, &addr->sin6_addr, addr6, INET6_ADDRSTRLEN);
           printf("%s: %s\n", ifaddr->ifa_name, addr6);
       }
